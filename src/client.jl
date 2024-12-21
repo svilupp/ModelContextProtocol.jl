@@ -1,8 +1,8 @@
 # Client implementation for Model Context Protocol
 
-export Client, send_request, initialize_client
+export Client, send_request, initialize_client!
 
-using JSON
+using JSON3
 
 """
     Client
@@ -29,7 +29,7 @@ function Client(name::String)
 end
 
 """
-    initialize_client(client::Client)
+    initialize_client!(client::Client)
 
 Initialize the client by sending an initialize request to the server.
 Returns the server's capabilities.
@@ -37,7 +37,7 @@ Returns the server's capabilities.
 # Returns
 - `Dict{String,Any}`: Server capabilities including available tools, prompts, and resources
 """
-function initialize_client(client::Client)
+function initialize_client!(client::Client)
     response = send_request(client, "initialize", Dict{String,Any}())
     client.initialized = true
     response
@@ -66,13 +66,13 @@ function send_request(client::Client, method::String, params::Dict{String,Any})
     end
     
     request = Request(method, params, "1")
-    println(stdout, JSON.json(to_dict(request)))
+    println(stdout, JSON3.write(to_dict(request)))
     flush(stdout)
     
     response = readline(stdin)
     isempty(response) && return nothing
     
-    parsed = JSON.parse(response)
+    parsed = JSON3.read(response)
     if haskey(parsed, "error")
         throw(ErrorException(parsed["error"]["message"]))
     end

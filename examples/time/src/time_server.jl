@@ -3,7 +3,6 @@ export create_time_server, get_current_time, convert_time
 
 using TimeZones
 using Dates
-using JSON
 
 # Import specific TimeZones functions
 import TimeZones: TimeZone, ZonedDateTime, UTC, astimezone, isdst
@@ -15,8 +14,8 @@ Create a new server instance with time conversion capabilities.
 """
 function create_time_server(name::String="time", version::String="0.1.0")
     server = Server(name, version)
-    register_tool(server, "get_current_time", get_current_time)
-    register_tool(server, "convert_time", convert_time)
+    register_tool!(server, "get_current_time", get_current_time)
+    register_tool!(server, "convert_time", convert_time)
     server
 end
 

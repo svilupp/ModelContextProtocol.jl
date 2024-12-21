@@ -1,8 +1,15 @@
 using Test
 using ModelContextProtocol
-using JSON
+using JSON3
 using HTTP
 using TimeZones
+
+# Add example servers to load path
+push!(LOAD_PATH, joinpath(@__DIR__, "..", "examples", "fetch", "src"))
+push!(LOAD_PATH, joinpath(@__DIR__, "..", "examples", "time", "src"))
+
+using FetchServer
+using TimeServer
 
 # Import specific functions for direct use
 import ModelContextProtocol: handle_request, Request, SuccessResponse, ErrorResponse
@@ -65,12 +72,12 @@ import ModelContextProtocol: handle_request, Request, SuccessResponse, ErrorResp
             ))
             @test result["timezone"] == "UTC"
             @test !result["is_dst"]
-            @test haskey(result, "datetime")
+            @test haskey(result, "time")
 
             # Test time conversion between timezones
             result = server.tools["convert_time"](Dict{String,Any}(
                 "source_timezone" => "UTC",
-                "time" => "12:00",
+                "time" => "2024-01-21T12:00:00",
                 "target_timezone" => "America/New_York"
             ))
             @test result["source"]["timezone"] == "UTC"
@@ -96,7 +103,7 @@ import ModelContextProtocol: handle_request, Request, SuccessResponse, ErrorResp
             @test response isa SuccessResponse
             @test !isnothing(response.result)
             @test haskey(response.result, "timezone")
-            @test haskey(response.result, "datetime")
+            @test haskey(response.result, "time")
 
             # Test error handling
             req = Request("invalid_method", Dict{String,Any}(), 3)

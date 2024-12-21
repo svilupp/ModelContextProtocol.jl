@@ -77,9 +77,9 @@ The Model Context Protocol (MCP) standardizes interactions between AI models and
 server = Server("MyServer", "1.0.0")
 
 # Register tools, prompts, and resources
-register_tool(server, "my_tool", params -> Dict("result" => "Hello!"))
-register_prompt(server, "greeting", "Say hello to {name}")
-register_resource(server, "config", Dict("timeout" => 30))
+register_tool!(server, "my_tool", params -> Dict("result" => "Hello!"))
+register_prompt!(server, "greeting", "Say hello to {name}")
+register_resource!(server, "config", Dict("timeout" => 30))
 
 # Run the server
 run_server(server)
@@ -91,7 +91,7 @@ run_server(server)
 client = Client("MyClient")
 
 # Initialize connection
-initialize_client(client)
+initialize_client!(client)
 
 # Send requests
 response = send_request(client, "my_tool", Dict("param" => "value"))

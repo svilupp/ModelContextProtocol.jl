@@ -1,6 +1,6 @@
 using Test
 using ModelContextProtocol
-using JSON
+using JSON3
 
 @testset "Server" begin
     @testset "Server Creation" begin
@@ -18,19 +18,19 @@ using JSON
         
         # Test tool registration
         handler(params) = params["x"] + params["y"]
-        register_tool(server, "add", handler)
+        register_tool!(server, "add", handler)
         @test haskey(server.tools, "add")
         @test server.tools["add"](Dict("x" => 1, "y" => 2)) == 3
 
         # Test prompt registration
         prompt = Dict("template" => "Hello, {name}!")
-        register_prompt(server, "greeting", prompt)
+        register_prompt!(server, "greeting", prompt)
         @test haskey(server.prompts, "greeting")
         @test server.prompts["greeting"] == prompt
 
         # Test resource registration
         resource = Dict("content" => "test content")
-        register_resource(server, "test_resource", resource)
+        register_resource!(server, "test_resource", resource)
         @test haskey(server.resources, "test_resource")
         @test server.resources["test_resource"] == resource
     end
@@ -59,7 +59,7 @@ using JSON
 
         # Test successful tool call
         handler(params) = params["x"] + params["y"]
-        register_tool(server, "add", handler)
+        register_tool!(server, "add", handler)
         req = Request("add", Dict{String,Any}("x" => 1, "y" => 2), 3)
         response = handle_request(server, req)
         @test response isa SuccessResponse
@@ -70,9 +70,9 @@ using JSON
         server = Server("test_server")
         
         # Register some capabilities
-        register_tool(server, "tool1", x -> x)
-        register_prompt(server, "prompt1", "test")
-        register_resource(server, "resource1", "test")
+        register_tool!(server, "tool1", x -> x)
+        register_prompt!(server, "prompt1", "test")
+        register_resource!(server, "resource1", "test")
 
         caps = get_capabilities(server)
         @test "tool1" in caps["tools"]

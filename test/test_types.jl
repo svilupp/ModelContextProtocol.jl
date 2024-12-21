@@ -1,6 +1,6 @@
 using Test
 using ModelContextProtocol
-using JSON
+using JSON3
 
 @testset "JSON-RPC Types" begin
     @testset "Request" begin

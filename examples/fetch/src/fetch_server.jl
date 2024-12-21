@@ -2,7 +2,6 @@
 export create_fetch_server, fetch_url, html_to_markdown
 
 using HTTP
-using JSON
 
 """
     create_fetch_server(name::String="fetch", version::String="0.1.0")
@@ -11,7 +10,7 @@ Create a new server instance with URL fetching capabilities.
 """
 function create_fetch_server(name::String="fetch", version::String="0.1.0")
     server = Server(name, version)
-    register_tool(server, "fetch", fetch_url)
+    register_tool!(server, "fetch", fetch_url)
     server
 end
 

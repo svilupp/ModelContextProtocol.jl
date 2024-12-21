@@ -4,7 +4,7 @@ export Request, AbstractResponse, Response, ErrorResponse, Notification
 export parse_request, parse_response, parse_error, parse_notification
 export to_dict
 
-using JSON
+using JSON3
 
 """
     Request
@@ -60,16 +60,22 @@ end
 
 # JSON parsing functions
 function parse_request(json_str::String)::Request
-    dict = JSON.parse(json_str)
+    json = JSON3.read(json_str)
+    # Convert JSON3.Object to Dict{String,Any}
+    params = if haskey(json, "params")
+        Dict{String,Any}(String(k) => v for (k,v) in pairs(json.params))
+    else
+        nothing
+    end
     Request(
-        dict["method"],
-        get(dict, "params", nothing),
-        get(dict, "id", nothing)
+        json["method"],
+        params,
+        get(json, "id", nothing)
     )
 end
 
 function parse_response(json_str::String)::SuccessResponse
-    dict = JSON.parse(json_str)
+    dict = JSON3.read(json_str)
     SuccessResponse(
         dict["result"],
         get(dict, "id", nothing)
@@ -77,19 +83,26 @@ function parse_response(json_str::String)::SuccessResponse
 end
 
 function parse_error(json_str::String)::ErrorResponse
-    dict = JSON.parse(json_str)
-    error = dict["error"]
+    json = JSON3.read(json_str)
+    # Convert JSON3.Object to Dict{String,Any}
+    error_dict = Dict{String,Any}(String(k) => v for (k,v) in pairs(json["error"]))
     ErrorResponse(
-        error,
-        get(dict, "id", nothing)
+        error_dict,
+        get(json, "id", nothing)
     )
 end
 
 function parse_notification(json_str::String)::Notification
-    dict = JSON.parse(json_str)
+    json = JSON3.read(json_str)
+    # Convert JSON3.Object to Dict{String,Any}
+    params = if haskey(json, "params")
+        Dict{String,Any}(String(k) => v for (k,v) in pairs(json.params))
+    else
+        nothing
+    end
     Notification(
-        dict["method"],
-        get(dict, "params", nothing)
+        json["method"],
+        params
     )
 end
 

@@ -2,10 +2,15 @@ using Test
 using ModelContextProtocol
 using TimeZones
 using Dates
-using JSON
+using JSON3
+
+# Add example server to load path
+push!(LOAD_PATH, joinpath(@__DIR__, "..", "examples", "time", "src"))
+using TimeServer
 
 # Import specific functions for direct use
-import ModelContextProtocol: get_current_time, convert_time, ErrorResponse, Response
+import TimeServer: get_current_time, convert_time
+import ModelContextProtocol: ErrorResponse, Response
 
 @testset "Time Server" begin
     @testset "Server Creation" begin
@@ -27,7 +32,7 @@ import ModelContextProtocol: get_current_time, convert_time, ErrorResponse, Resp
         # Test valid timezone
         result = get_current_time(Dict{String,Any}("timezone" => "UTC"))
         @test haskey(result, "timezone")
-        @test haskey(result, "datetime")
+        @test haskey(result, "time")
         @test haskey(result, "is_dst")
         @test result["timezone"] == "UTC"
         @test !result["is_dst"]  # UTC never has DST
@@ -54,7 +59,7 @@ import ModelContextProtocol: get_current_time, convert_time, ErrorResponse, Resp
         # Test valid conversion
         params = Dict{String,Any}(
             "source_timezone" => "America/New_York",
-            "time" => "16:30",
+            "time" => "2024-01-21T16:30:00",
             "target_timezone" => "Asia/Tokyo"
         )
         result = convert_time(params)

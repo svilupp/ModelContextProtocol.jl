@@ -1,10 +1,14 @@
 using Test
 using ModelContextProtocol
 using HTTP
-using JSON
+using JSON3
+
+# Add example server to load path
+push!(LOAD_PATH, joinpath(@__DIR__, "..", "examples", "fetch", "src"))
+using FetchServer
 
 # Import specific functions for direct use
-import ModelContextProtocol: fetch_url, html_to_markdown
+import FetchServer: fetch_url, html_to_markdown
 
 @testset "Fetch Server" begin
     @testset "Server Creation" begin
@@ -34,7 +38,7 @@ import ModelContextProtocol: fetch_url, html_to_markdown
         @test !contains(markdown, "<style>")
         @test !contains(markdown, "<script>")
         @test contains(markdown, "Title")
-        @test contains(markdown, "Paragraph with bold text")
+        @test contains(markdown, "Paragraph with **bold** text")
         @test contains(markdown, "* Item 1")
         @test contains(markdown, "* Item 2")
     end
