@@ -1,0 +1,16 @@
+name = "ModelContextProtocol"
+uuid = "2913a09a-b5e5-4221-aca6-aaec5042b714"
+authors = ["Devin AI <158243242+devin-ai-integration[bot]@users.noreply.github.com>"]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
+
+[compat]
+julia = "1.11"
+JSON = "0.21"
+HTTP = "1.10"
+TimeZones = "1.13"
