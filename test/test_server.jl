@@ -75,8 +75,8 @@ using JSON3
         register_resource!(server, "resource1", "test")
 
         caps = get_capabilities(server)
-        @test "tool1" in caps["tools"]
-        @test "prompt1" in caps["prompts"]
-        @test "resource1" in caps["resources"]
+        @test any(t -> t["name"] == "tool1", caps["tools"])
+        @test any(p -> p["name"] == "prompt1", caps["prompts"])
+        @test any(r -> r["name"] == "resource1", caps["resources"])
     end
 end

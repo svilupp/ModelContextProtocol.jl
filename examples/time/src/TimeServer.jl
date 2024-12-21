@@ -4,7 +4,9 @@ using Dates: DateTime, @dateformat_str, Millisecond, Hour, format
 using TimeZones: TimeZone, ZonedDateTime, now, astimezone, hour, isdst, VariableTimeZone
 using ModelContextProtocol
 
-export create_time_server, get_current_time, convert_time
+import ModelContextProtocol: Server, register_tool!, Request, SuccessResponse, handle_request, list_tools, list_resources
+
+export create_time_server, get_current_time, convert_time, list_tools, list_resources
 
 """
     create_time_server(name::String="time", version::String="0.1.0")
@@ -68,10 +70,18 @@ function get_current_time(params::Dict)
         throw(ErrorException("Invalid timezone: $tz_name"))
     end
     current_time = now(tz_val)
-    Dict(
-        "time" => format(current_time, "yyyy-mm-dd HH:MM:SS"),
-        "timezone" => string(tz_val),
-        "is_dst" => current_time.zone isa VariableTimeZone ? isdst(current_time) : false
+    Dict{String,Any}(
+        "content" => [
+            Dict{String,Any}(
+                "type" => "json",
+                "json" => Dict{String,Any}(
+                    "time" => format(current_time, "yyyy-mm-dd HH:MM:SS"),
+                    "timezone" => string(tz_val),
+                    "is_dst" => current_time.zone isa VariableTimeZone ? isdst(current_time) : false
+                )
+            )
+        ],
+        "isError" => false
     )
 end
 
@@ -112,18 +122,69 @@ function convert_time(params::Dict)
     # Calculate time difference
     diff_hours = round((target_time.utc_datetime - source_time.utc_datetime) / Hour(1), digits=2)
     
-    Dict(
-        "source" => Dict(
-            "timezone" => string(source_tz_val),
-            "time" => format(source_time, "yyyy-mm-dd HH:MM:SS"),
-            "is_dst" => source_time.zone isa VariableTimeZone ? isdst(source_time) : false
-        ),
-        "target" => Dict(
-            "timezone" => string(target_tz_val),
-            "time" => format(target_time, "yyyy-mm-dd HH:MM:SS"),
-            "is_dst" => target_time.zone isa VariableTimeZone ? isdst(target_time) : false
-        ),
-        "time_difference" => "$(diff_hours)h"
+    Dict{String,Any}(
+        "content" => [
+            Dict{String,Any}(
+                "type" => "json",
+                "json" => Dict{String,Any}(
+                    "source" => Dict{String,Any}(
+                        "timezone" => string(source_tz_val),
+                        "time" => format(source_time, "yyyy-mm-dd HH:MM:SS"),
+                        "is_dst" => source_time.zone isa VariableTimeZone ? isdst(source_time) : false
+                    ),
+                    "target" => Dict{String,Any}(
+                        "timezone" => string(target_tz_val),
+                        "time" => format(target_time, "yyyy-mm-dd HH:MM:SS"),
+                        "is_dst" => target_time.zone isa VariableTimeZone ? isdst(target_time) : false
+                    ),
+                    "time_difference" => "$(diff_hours)h"
+                )
+            )
+        ],
+        "isError" => false
+    )
+end
+
+"""
+    list_tools(server::Server)
+
+List all available tools in the time server.
+"""
+function list_tools(server::Server)
+    tools = Dict{String,Any}[]
+    for (name, metadata) in server.metadata
+        push!(tools, Dict{String,Any}(
+            "name" => name,
+            "description" => get(metadata, "description", "No description available"),
+            "parameters" => get(metadata, "parameters", Dict{String,Any}())
+        ))
+    end
+    return Dict{String,Any}(
+        "content" => [
+            Dict{String,Any}(
+                "type" => "json",
+                "json" => Dict{String,Any}("tools" => tools)
+            )
+        ],
+        "isError" => false
+    )
+end
+
+"""
+    list_resources(server::Server)
+
+List all available resources in the time server.
+Currently returns an empty list as no resources are implemented.
+"""
+function list_resources(server::Server)
+    return Dict{String,Any}(
+        "content" => [
+            Dict{String,Any}(
+                "type" => "json",
+                "json" => Dict{String,Any}("resources" => Dict{String,Any}[])
+            )
+        ],
+        "isError" => false
     )
 end
 

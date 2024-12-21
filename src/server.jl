@@ -30,11 +30,20 @@ end
 
 # Registration methods
 """
+    register_tool!(server::Server, name::String, handler::Function, metadata::Dict{String,Any})
     register_tool!(server::Server, name::String, handler::Union{Function,Dict{String,Any}})
 
-Register a tool with the given name and either a handler function or tool metadata dictionary.
-If a dictionary is provided, it should contain tool metadata including parameters.
+Register a tool with the given name and either:
+1. A handler function and metadata dictionary
+2. Just a handler function (metadata will be initialized with defaults)
+3. Just a metadata dictionary (handler will be a placeholder)
 """
+function register_tool!(server::Server, name::String, handler::Function, metadata::Dict{String,Any})
+    server.tools[name] = handler
+    server.metadata[name] = metadata
+    server
+end
+
 function register_tool!(server::Server, name::String, handler::Union{Function,Dict{String,Any}})
     if handler isa Dict{String,Any}
         # Store metadata in server's metadata
@@ -81,9 +90,9 @@ end
 # Server initialization and capabilities
 function get_capabilities(server::Server)
     Dict{String,Any}(
-        "tools" => collect(keys(server.tools)),
-        "prompts" => collect(keys(server.prompts)),
-        "resources" => collect(keys(server.resources))
+        "tools" => create_tool_list(server),
+        "prompts" => [Dict("name" => name) for name in keys(server.prompts)],
+        "resources" => [Dict("name" => name) for name in keys(server.resources)]
     )
 end
 
@@ -114,6 +123,15 @@ function call_tool(server::Server, tool_name::String, params::Dict{String,Any})
     handler(params)
 end
 
+"""
+    create_tool_list(server::Server)::Vector{Dict{String,Any}}
+
+Create a list of tool metadata including name, description, and input schema.
+"""
+function create_tool_list(server::Server)::Vector{Dict{String,Any}}
+    [server.metadata[name] for name in keys(server.tools)]
+end
+
 function handle_request(server::Server, request::Request)
     if !server.initialized && request.method != "initialize"
         return ErrorResponse(Dict("code" => -32002, "message" => "Server not initialized"), request.id)
@@ -122,6 +140,16 @@ function handle_request(server::Server, request::Request)
     try
         if request.method == "initialize"
             return handle_initialize(server, request.params)
+        elseif request.method == "tools/list"
+            return SuccessResponse(Dict(
+                "tools" => create_tool_list(server),
+                "nextCursor" => nothing  # Minimal implementation without pagination
+            ), request.id)
+        elseif request.method == "resources/list"
+            return SuccessResponse(Dict(
+                "resources" => [],  # Minimal implementation with empty resources
+                "nextCursor" => nothing
+            ), request.id)
         elseif haskey(server.tools, request.method)
             result = call_tool(server, request.method, request.params)
             return SuccessResponse(result, request.id)
