@@ -1,8 +1,10 @@
-# ModelContextProtocol.jl [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://svilupp.github.io/ModelContextProtocol.jl/stable/) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://svilupp.github.io/ModelContextProtocol.jl/dev/) [![Build Status](https://github.com/svilupp/ModelContextProtocol.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/svilupp/ModelContextProtocol.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/svilupp/ModelContextProtocol.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/svilupp/ModelContextProtocol.jl) [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+```@meta
+CurrentModule = ModelContextProtocol
+```
+
+# ModelContextProtocol.jl
 
 A Julia implementation of the [Model Context Protocol](https://modelcontextprotocol.io/introduction) (MCP), providing an SDK for building MCP-compliant servers and clients that enable AI models to access external tools.
-
-![Model Context Protocol Diagram](docs/src/assets/diagram.png)
 
 ## Features
 
@@ -127,6 +129,7 @@ For the following tools to be available in your Claude.ai desktop app, your conf
 }
 ```
 
+
 ## Interactive Example Client
 
 The package includes an interactive client example that demonstrates how to use the MCP tools:
@@ -159,7 +162,6 @@ Just launch it `npx @modelcontextprotocol/inspector`, open it in the browser and
 
 For local tools, you must provide them as an argument to the inspector, eg, 
 `npx @modelcontextprotocol/inspector julia my_server/run_server.jl`
-
 
 ## Protocol Overview
 

@@ -1,0 +1,8 @@
+name = "TimeServer"
+uuid = "d2c2c6b9-156c-4f7f-a8ae-1d1f7c77c11e"
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
+ModelContextProtocol = "fb748813-4457-49ff-970d-217630ab61cb"

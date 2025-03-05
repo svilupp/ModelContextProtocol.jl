@@ -1,0 +1,13 @@
+name = "WeatherServer"
+uuid = "c44dca10-4157-4e03-9b9c-1c8c86c85c31"
+version = "0.1.0"
+
+[deps]
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+ModelContextProtocol = "fb748813-4457-49ff-970d-217630ab61cb"
+
+[compat]
+HTTP = "1.10"
+JSON3 = "1.14"
+julia = "1.11"

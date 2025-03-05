@@ -1,0 +1,28 @@
+name = "ModelContextProtocol"
+uuid = "fb748813-4457-49ff-970d-217630ab61cb"
+authors = ["J S <49557684+svilupp@users.noreply.github.com> and contributors"]
+version = "0.0.1"
+
+[deps]
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
+Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[compat]
+Aqua = "0.8"
+Dates = "1"
+HTTP = "1.10"
+JSON3 = "1.14"
+Markdown = "1"
+Test = "1"
+TimeZones = "1"
+julia = "1.11"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
+
+[targets]
+test = ["Aqua", "Dates", "HTTP", "Test", "TimeZones"]
