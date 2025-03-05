@@ -92,6 +92,41 @@ Language translation services:
 - `detect_language`: Detect the language of provided text
 - `get_language_info`: Get detailed information about a specific language
 
+### Example Config
+
+For the following tools to be available in your Claude.ai desktop app, your config file (eg, `~/Library/Application Support/Claude/claude_desktop_config.json`) should look like this:
+
+```json
+{
+    "mcpServers": {
+        "fetch-server": {
+            "command": "julia",
+            "args": [
+                "<your-path>/ModelContextProtocol.jl/examples/fetch/run_server.jl"
+            ]
+        },
+        "time-server": {
+            "command": "julia",
+            "args": [
+                "<your-path>/ModelContextProtocol.jl/examples/time/run_server.jl"
+            ]
+        },
+        "weather-server": {
+            "command": "julia",
+            "args": [
+                "<your-path>/ModelContextProtocol.jl/examples/weather/run_server.jl"
+            ]
+        },
+        "translate-server": {
+            "command": "julia",
+            "args": [
+                "<your-path>/ModelContextProtocol.jl/examples/translate/run_server.jl"
+            ]
+        }
+    }
+}
+```
+
 ## Interactive Example Client
 
 The package includes an interactive client example that demonstrates how to use the MCP tools:

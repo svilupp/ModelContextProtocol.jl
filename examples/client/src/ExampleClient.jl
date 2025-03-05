@@ -168,7 +168,7 @@ function run_with_fetch_server()
     # Find the path to the fetch server script
     script_dir = dirname(@__FILE__)
     repo_root = dirname(dirname(dirname(script_dir)))
-    fetch_server_script = joinpath(repo_root, "examples", "fetch", "test_fetch_server.jl")
+    fetch_server_script = joinpath(repo_root, "examples", "fetch", "run_server.jl")
 
     if !isfile(fetch_server_script)
         println("Error: Fetch server script not found at expected path: $fetch_server_script")
@@ -176,7 +176,8 @@ function run_with_fetch_server()
     end
 
     # Start the fetch server as a subprocess
-    server_cmd = `julia --project=$repo_root $fetch_server_script`
+    fetch_dir = dirname(fetch_server_script)
+    server_cmd = `julia --project=$fetch_dir $fetch_server_script`
     server_process = open(server_cmd, "r+")
 
     # Run the client connected to the server process
