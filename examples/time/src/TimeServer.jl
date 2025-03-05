@@ -4,9 +4,9 @@ using Dates: DateTime, @dateformat_str, Millisecond, Hour, format
 using TimeZones: TimeZone, ZonedDateTime, now, astimezone, hour, isdst, VariableTimeZone
 using ModelContextProtocol
 
-import ModelContextProtocol: Server, register_tool!, Request, SuccessResponse, handle_request, list_tools, list_resources
+import ModelContextProtocol: Server, register_tool!, Request, SuccessResponse, handle_request, create_text_content, create_json_content, create_tool_response
 
-export create_time_server, get_current_time, convert_time, list_tools, list_resources
+export create_time_server, get_current_time, convert_time
 
 """
     create_time_server(name::String="time", version::String="0.1.0")
@@ -21,10 +21,14 @@ function create_time_server(name::String="time", version::String="0.1.0")
         "name" => "get_current_time",
         "description" => "Get current time in a specific timezone",
         "parameters" => Dict{String,Any}(
-            "timezone" => Dict{String,Any}(
-                "type" => "string",
-                "description" => "Timezone name (e.g., 'UTC', 'America/New_York')"
-            )
+            "type" => "object",
+            "properties" => Dict{String,Any}(
+                "timezone" => Dict{String,Any}(
+                    "type" => "string",
+                    "description" => "Timezone name (e.g., 'UTC', 'America/New_York')"
+                )
+            ),
+            "required" => ["timezone"]
         )
     ))
     
@@ -33,19 +37,40 @@ function create_time_server(name::String="time", version::String="0.1.0")
         "name" => "convert_time",
         "description" => "Convert time between timezones",
         "parameters" => Dict{String,Any}(
-            "source_timezone" => Dict{String,Any}(
-                "type" => "string",
-                "description" => "Source timezone"
+            "type" => "object",
+            "properties" => Dict{String,Any}(
+                "source_timezone" => Dict{String,Any}(
+                    "type" => "string",
+                    "description" => "Source timezone"
+                ),
+                "target_timezone" => Dict{String,Any}(
+                    "type" => "string",
+                    "description" => "Target timezone"
+                ),
+                "time" => Dict{String,Any}(
+                    "type" => "string",
+                    "description" => "Time to convert (ISO format)"
+                )
             ),
-            "target_timezone" => Dict{String,Any}(
-                "type" => "string",
-                "description" => "Target timezone"
-            ),
-            "time" => Dict{String,Any}(
-                "type" => "string",
-                "description" => "Time to convert (ISO format)"
-            )
+            "required" => ["source_timezone", "target_timezone", "time"]
         )
+    ))
+    
+    # Register a sample prompt
+    register_prompt!(server, "time_zone_help", Dict{String,Any}(
+        "type" => "text",
+        "text" => """
+        # Time Zone Help
+        
+        Time zones are regions of the globe that observe a uniform standard time for legal, commercial, and social purposes.
+        
+        Common time zones include:
+        - UTC (Coordinated Universal Time)
+        - America/New_York (Eastern Time)
+        - America/Los_Angeles (Pacific Time)
+        - Europe/London (British Time)
+        - Asia/Tokyo (Japan Time)
+        """
     ))
     
     server.tools["get_current_time"] = get_current_time
@@ -69,20 +94,21 @@ function get_current_time(params::Dict)
     catch e
         throw(ErrorException("Invalid timezone: $tz_name"))
     end
+    
     current_time = now(tz_val)
-    Dict{String,Any}(
-        "content" => [
-            Dict{String,Any}(
-                "type" => "json",
-                "json" => Dict{String,Any}(
-                    "time" => format(current_time, "yyyy-mm-dd HH:MM:SS"),
-                    "timezone" => string(tz_val),
-                    "is_dst" => current_time.zone isa VariableTimeZone ? isdst(current_time) : false
-                )
-            )
-        ],
-        "isError" => false
-    )
+    
+    content = [
+        create_json_content(Dict{String,Any}(
+            "time" => format(current_time, "yyyy-mm-dd HH:MM:SS"),
+            "timezone" => string(tz_val),
+            "is_dst" => current_time.zone isa VariableTimeZone ? isdst(current_time) : false
+        )),
+        create_text_content(
+            "The current time in $(tz_name) is $(format(current_time, "yyyy-mm-dd HH:MM:SS"))"
+        )
+    ]
+    
+    create_tool_response(content)
 end
 
 """
@@ -122,70 +148,34 @@ function convert_time(params::Dict)
     # Calculate time difference
     diff_hours = round((target_time.utc_datetime - source_time.utc_datetime) / Hour(1), digits=2)
     
-    Dict{String,Any}(
-        "content" => [
-            Dict{String,Any}(
-                "type" => "json",
-                "json" => Dict{String,Any}(
-                    "source" => Dict{String,Any}(
-                        "timezone" => string(source_tz_val),
-                        "time" => format(source_time, "yyyy-mm-dd HH:MM:SS"),
-                        "is_dst" => source_time.zone isa VariableTimeZone ? isdst(source_time) : false
-                    ),
-                    "target" => Dict{String,Any}(
-                        "timezone" => string(target_tz_val),
-                        "time" => format(target_time, "yyyy-mm-dd HH:MM:SS"),
-                        "is_dst" => target_time.zone isa VariableTimeZone ? isdst(target_time) : false
-                    ),
-                    "time_difference" => "$(diff_hours)h"
-                )
-            )
-        ],
-        "isError" => false
+    result = Dict{String,Any}(
+        "source" => Dict{String,Any}(
+            "timezone" => string(source_tz_val),
+            "time" => format(source_time, "yyyy-mm-dd HH:MM:SS"),
+            "is_dst" => source_time.zone isa VariableTimeZone ? isdst(source_time) : false
+        ),
+        "target" => Dict{String,Any}(
+            "timezone" => string(target_tz_val),
+            "time" => format(target_time, "yyyy-mm-dd HH:MM:SS"),
+            "is_dst" => target_time.zone isa VariableTimeZone ? isdst(target_time) : false
+        ),
+        "time_difference" => "$(diff_hours)h"
     )
-end
-
-"""
-    list_tools(server::Server)
-
-List all available tools in the time server.
-"""
-function list_tools(server::Server)
-    tools = Dict{String,Any}[]
-    for (name, metadata) in server.metadata
-        push!(tools, Dict{String,Any}(
-            "name" => name,
-            "description" => get(metadata, "description", "No description available"),
-            "parameters" => get(metadata, "parameters", Dict{String,Any}())
-        ))
-    end
-    return Dict{String,Any}(
-        "content" => [
-            Dict{String,Any}(
-                "type" => "json",
-                "json" => Dict{String,Any}("tools" => tools)
-            )
-        ],
-        "isError" => false
-    )
-end
-
-"""
-    list_resources(server::Server)
-
-List all available resources in the time server.
-Currently returns an empty list as no resources are implemented.
-"""
-function list_resources(server::Server)
-    return Dict{String,Any}(
-        "content" => [
-            Dict{String,Any}(
-                "type" => "json",
-                "json" => Dict{String,Any}("resources" => Dict{String,Any}[])
-            )
-        ],
-        "isError" => false
-    )
+    
+    # Create a human-readable text response too
+    text_response = """
+    Time Conversion:
+    - $(format(source_time, "yyyy-mm-dd HH:MM:SS")) in $(params["source_timezone"])
+    - $(format(target_time, "yyyy-mm-dd HH:MM:SS")) in $(params["target_timezone"])
+    - Difference: $(diff_hours) hours
+    """
+    
+    content = [
+        create_json_content(result),
+        create_text_content(text_response)
+    ]
+    
+    create_tool_response(content)
 end
 
 end # module

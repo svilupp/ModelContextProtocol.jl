@@ -5,4 +5,4 @@ version = "0.1.0"
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
-ModelContextProtocol = "2913a09a-b5e5-4221-aca6-aaec5042b714"
+ModelContextProtocol = "fb748813-4457-49ff-970d-217630ab61cb"

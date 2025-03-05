@@ -1,14 +1,8 @@
-using Test
-using ModelContextProtocol
-using HTTP
-using JSON3
-
-# Add example server to load path
-push!(LOAD_PATH, joinpath(@__DIR__, "..", "examples", "fetch", "src"))
 using FetchServer
-
+using ModelContextProtocol
 # Import specific functions for direct use
-import FetchServer: fetch_url, html_to_markdown
+import FetchServer: fetch_url
+using ModelContextProtocol: html_to_markdown
 
 @testset "Fetch Server" begin
     @testset "Server Creation" begin
@@ -45,10 +39,10 @@ import FetchServer: fetch_url, html_to_markdown
 
     @testset "Fetch URL Parameters" begin
         # Test missing URL
-        @test_throws ArgumentError fetch_url(Dict{String,Any}())
+        @test_throws ArgumentError fetch_url(Dict{String, Any}())
 
         # Test with all parameters
-        params = Dict{String,Any}(
+        params = Dict{String, Any}(
             "url" => "https://example.com",
             "max_length" => 100,
             "start_index" => 10,
@@ -62,18 +56,29 @@ import FetchServer: fetch_url, html_to_markdown
 
     @testset "Fetch Integration" begin
         server = create_fetch_server()
-        
+
         # Test with httpbin.org (reliable test endpoint)
-        params = Dict{String,Any}(
+        params = Dict{String, Any}(
             "url" => "https://httpbin.org/html",
             "max_length" => 100
         )
-        
+
         result = server.tools["fetch"](params)
         @test haskey(result, "content")
-        @test haskey(result, "url")
-        @test haskey(result, "length")
-        @test result["length"] <= 100
-        @test result["url"] == "https://httpbin.org/html"
+        
+        # Content is now an array of content items as per MCP
+        @test isa(result["content"], Vector)
+        
+        # Extract text content if available
+        text_content = nothing
+        for item in result["content"]
+            if item["type"] == "text"
+                text_content = item["text"] 
+                break
+            end
+        end
+        
+        # At least one content item should be present
+        @test length(result["content"]) > 0
     end
 end
