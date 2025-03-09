@@ -1,5 +1,8 @@
 # ModelContextProtocol.jl [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://svilupp.github.io/ModelContextProtocol.jl/stable/) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://svilupp.github.io/ModelContextProtocol.jl/dev/) [![Build Status](https://github.com/svilupp/ModelContextProtocol.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/svilupp/ModelContextProtocol.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/svilupp/ModelContextProtocol.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/svilupp/ModelContextProtocol.jl) [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
+> [!WARNING]
+> This implementation is not yet functional, completed! Do not use!
+
 A Julia implementation of the [Model Context Protocol](https://modelcontextprotocol.io/introduction) (MCP), providing an SDK for building MCP-compliant servers and clients that enable AI models to access external tools.
 
 ![Model Context Protocol Diagram](docs/src/assets/diagram.png)
